@@ -55,7 +55,7 @@ impl<'a> Lexer<'a> {
 
     pub fn next_token(&mut self) -> Token {
         let tok = match self.ch {
-            b'0'...b'9' => Token::Int,
+            b'0'..=b'9' => Token::Int,
 
             b'=' => Token::Assign,
             b'+' => Token::Plus,
