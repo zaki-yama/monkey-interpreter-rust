@@ -4,7 +4,7 @@ pub enum Token {
     Eof,
     // 識別子 + リテラル
     Ident(String), // add, foobar, x, y, ...
-    Int,           // 123456
+    Int(i64),      // 123456
 
     // 演算子
     Assign,

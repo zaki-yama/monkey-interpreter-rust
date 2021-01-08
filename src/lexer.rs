@@ -21,12 +21,13 @@ fn test_next_token() {
         Token::Let,
         Token::Ident(String::from("five")),
         Token::Assign,
-        Token::Int,
+        Token::Int(5),
         Token::Semicolon,
+        //
         Token::Let,
         Token::Ident(String::from("ten")),
         Token::Assign,
-        Token::Int,
+        Token::Int(10),
         Token::Semicolon,
         //
         Token::Let,
@@ -103,7 +104,7 @@ impl<'a> Lexer<'a> {
         self.skip_whitespace();
 
         let tok = match self.ch {
-            b'0'..=b'9' => Token::Int,
+            b'0'..=b'9' => return self.consume_number(),
 
             b'=' => Token::Assign,
             b'+' => Token::Plus,
@@ -150,5 +151,14 @@ impl<'a> Lexer<'a> {
         while matches!(self.ch, b' ' | b'\t' | b'\n') {
             self.read_char();
         }
+    }
+
+    fn consume_number(&mut self) -> Token {
+        let position = self.position;
+        while matches!(self.ch, b'0'..=b'9') {
+            self.read_char();
+        }
+        let literal = &self.input[position..self.position];
+        Token::Int(literal.parse::<i64>().unwrap())
     }
 }
