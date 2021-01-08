@@ -14,6 +14,8 @@ fn test_next_token() {
     };
 
     let result = add(five, ten);
+    !-/*5;
+    5 < 10 > 5;
     ",
     );
     let mut l = Lexer::new(&input);
@@ -56,6 +58,20 @@ fn test_next_token() {
         Token::Comma,
         Token::Ident(String::from("ten")),
         Token::RParen,
+        Token::Semicolon,
+        // !-/*5;
+        Token::Bang,
+        Token::Minus,
+        Token::Slash,
+        Token::Asterisk,
+        Token::Int(5),
+        Token::Semicolon,
+        // 5 < 10 > 5;
+        Token::Int(5),
+        Token::Lt,
+        Token::Int(10),
+        Token::Gt,
+        Token::Int(5),
         Token::Semicolon,
         Token::Eof,
     ];
@@ -109,6 +125,12 @@ impl<'a> Lexer<'a> {
 
             b'=' => Token::Assign,
             b'+' => Token::Plus,
+            b'-' => Token::Minus,
+            b'!' => Token::Bang,
+            b'*' => Token::Asterisk,
+            b'/' => Token::Slash,
+            b'<' => Token::Lt,
+            b'>' => Token::Gt,
 
             b',' => Token::Comma,
             b';' => Token::Semicolon,

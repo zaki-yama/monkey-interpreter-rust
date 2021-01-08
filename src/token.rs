@@ -9,6 +9,12 @@ pub enum Token {
     // 演算子
     Assign,
     Plus,
+    Minus,
+    Bang,
+    Asterisk,
+    Slash,
+    Lt,
+    Gt,
 
     // デリミタ
     Comma,
