@@ -108,10 +108,32 @@ impl<'a> Lexer<'a> {
             b'}' => Token::RBrace,
 
             0 => Token::Eof,
-            _ => Token::Illegal,
+            _ => {
+                if self.is_letter(self.ch) {
+                    let literal = self.read_identifier();
+
+                    return match literal {
+                        "let" => Token::Let,
+                        _ => Token::Ident(String::from(literal)),
+                    };
+                }
+                Token::Illegal
+            }
         };
 
         self.read_char();
         tok
+    }
+
+    fn read_identifier(&mut self) -> &str {
+        let position = self.position;
+        while self.is_letter(self.ch) {
+            self.read_char();
+        }
+        &self.input[position..self.position]
+    }
+
+    fn is_letter(&self, ch: u8) -> bool {
+        matches!(ch, b'a'..=b'z' | b'A'..=b'Z' | b'_')
     }
 }
