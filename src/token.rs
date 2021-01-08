@@ -16,6 +16,9 @@ pub enum Token {
     Lt,
     Gt,
 
+    Eq,
+    NotEq,
+
     // デリミタ
     Comma,
     Semicolon,

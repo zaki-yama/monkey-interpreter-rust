@@ -22,6 +22,9 @@ fn test_next_token() {
     } else {
         return false;
     }
+
+    10 == 10;
+    10 != 9;
     ",
     );
     let mut l = Lexer::new(&input);
@@ -101,6 +104,16 @@ fn test_next_token() {
         Token::Semicolon,
         // }
         Token::RBrace,
+        // 10 == 10;
+        Token::Int(10),
+        Token::Eq,
+        Token::Int(10),
+        Token::Semicolon,
+        // 10 != 9;
+        Token::Int(10),
+        Token::NotEq,
+        Token::Int(9),
+        Token::Semicolon,
         Token::Eof,
     ];
 
@@ -145,16 +158,36 @@ impl<'a> Lexer<'a> {
         self.read_position += 1;
     }
 
+    fn peek_char(&self) -> u8 {
+        if self.read_position >= self.input.len() {
+            return 0;
+        } else {
+            return self.input.as_bytes()[self.read_position];
+        }
+    }
+
     pub fn next_token(&mut self) -> Token {
         self.skip_whitespace();
 
         let tok = match self.ch {
             b'0'..=b'9' => return self.consume_number(),
 
-            b'=' => Token::Assign,
+            b'=' => match self.peek_char() {
+                b'=' => {
+                    self.read_char();
+                    Token::Eq
+                }
+                _ => Token::Assign,
+            },
             b'+' => Token::Plus,
             b'-' => Token::Minus,
-            b'!' => Token::Bang,
+            b'!' => match self.peek_char() {
+                b'=' => {
+                    self.read_char();
+                    Token::NotEq
+                }
+                _ => Token::Bang,
+            },
             b'*' => Token::Asterisk,
             b'/' => Token::Slash,
             b'<' => Token::Lt,
