@@ -124,7 +124,7 @@ fn test_next_token() {
     }
 }
 
-struct Lexer<'a> {
+pub struct Lexer<'a> {
     input: &'a str,
     position: usize,      // 入力における現在の位置(現在の文字を指し示す)
     read_position: usize, // これから読み込む位置(現在の文字の次)
