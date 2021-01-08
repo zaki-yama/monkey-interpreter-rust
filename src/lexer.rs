@@ -100,6 +100,8 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn next_token(&mut self) -> Token {
+        self.skip_whitespace();
+
         let tok = match self.ch {
             b'0'..=b'9' => Token::Int,
 
@@ -142,5 +144,11 @@ impl<'a> Lexer<'a> {
 
     fn is_letter(&self, ch: u8) -> bool {
         matches!(ch, b'a'..=b'z' | b'A'..=b'Z' | b'_')
+    }
+
+    fn skip_whitespace(&mut self) {
+        while matches!(self.ch, b' ' | b'\t' | b'\n') {
+            self.read_char();
+        }
     }
 }
