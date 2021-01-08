@@ -1,7 +1,10 @@
 use crate::Token;
+use log::debug;
 
 #[test]
 fn test_next_token() {
+    env_logger::init();
+
     let input = String::from(
         "let five = 5;
     let ten = 10;
@@ -57,7 +60,7 @@ fn test_next_token() {
 
     for expected in tests {
         let token = l.next_token();
-
+        debug!("token: {:?}", token);
         assert_eq!(expected, token);
     }
 }
@@ -83,6 +86,10 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_char(&mut self) {
+        debug!(
+            "(read_position, ch): ({}, {})",
+            self.read_position, self.ch as char
+        );
         if self.read_position >= self.input.len() {
             self.ch = 0;
         } else {
