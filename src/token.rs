@@ -28,4 +28,9 @@ pub enum Token {
     // キーワード
     Function,
     Let,
+    True,
+    False,
+    If,
+    Else,
+    Return,
 }
