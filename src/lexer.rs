@@ -2,18 +2,57 @@ use crate::Token;
 
 #[test]
 fn test_next_token() {
-    let input = String::from("=+(){},;");
+    let input = String::from(
+        "let five = 5;
+    let ten = 10;
 
+    let add = fn(x, y) {
+        x + y;
+    };
+
+    let result = add(five, ten);
+    ",
+    );
     let mut l = Lexer::new(&input);
     let tests = vec![
+        Token::Let,
+        Token::Ident(String::from("five")),
         Token::Assign,
-        Token::Plus,
+        Token::Int,
+        Token::Semicolon,
+        Token::Let,
+        Token::Ident(String::from("ten")),
+        Token::Assign,
+        Token::Int,
+        Token::Semicolon,
+        //
+        Token::Let,
+        Token::Ident(String::from("foo")),
+        Token::Assign,
+        Token::Function,
         Token::LParen,
+        Token::Ident(String::from("foo")),
         Token::RParen,
         Token::LBrace,
-        Token::RBrace,
-        Token::Comma,
+        Token::Ident(String::from("foo")),
+        Token::Plus,
+        Token::Ident(String::from("foo")),
         Token::Semicolon,
+        Token::RBrace,
+        Token::Semicolon,
+        // let result = add(five, ten);
+        Token::Let,
+        Token::Ident(String::from("foo")),
+        Token::Assign,
+        Token::Ident(String::from("foo")),
+        Token::LParen,
+        Token::Ident(String::from("foo")),
+        Token::Comma,
+        Token::Ident(String::from("foo")),
+        Token::Comma,
+        Token::RParen,
+        Token::Semicolon,
+        Token::Eof,
     ];
 
     for expected in tests {
