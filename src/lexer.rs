@@ -124,6 +124,7 @@ impl<'a> Lexer<'a> {
 
                     return match literal {
                         "let" => Token::Let,
+                        "fn" => Token::Function,
                         _ => Token::Ident(String::from(literal)),
                     };
                 }
