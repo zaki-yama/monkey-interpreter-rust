@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use monkey_interpreter_rust::{lexer::Lexer, token::Token};
+use monkey_interpreter_rust::{lexer::Lexer, token::TokenType};
 
 fn main() {
     println!("Hello! This is the Monkey programming language!");
@@ -17,7 +17,7 @@ fn main() {
 
         let mut lexer = Lexer::new(&input);
         while let tok = lexer.next_token() {
-            if tok == Token::Eof {
+            if tok.token_type == TokenType::Eof {
                 break;
             }
             println!("{:?} ", tok);
