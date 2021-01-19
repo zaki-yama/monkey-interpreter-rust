@@ -1,10 +1,10 @@
 #[derive(Debug, PartialEq, Clone)]
-pub enum Token {
+pub enum TokenType {
     Illegal,
     Eof,
     // 識別子 + リテラル
-    Ident(String), // add, foobar, x, y, ...
-    Int(i64),      // 123456
+    Ident, // add, foobar, x, y, ...
+    Int,   // 123456
 
     // 演算子
     Assign,
@@ -36,4 +36,32 @@ pub enum Token {
     If,
     Else,
     Return,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Token {
+    pub token_type: TokenType,
+    pub literal: String,
+}
+
+pub fn lookup_ident(ident: &str) -> TokenType {
+    match ident {
+        "let" => TokenType::Let,
+        "fn" => TokenType::Function,
+        "true" => TokenType::True,
+        "false" => TokenType::False,
+        "if" => TokenType::If,
+        "else" => TokenType::Else,
+        "return" => TokenType::Return,
+        _ => TokenType::Ident,
+    }
+}
+
+impl Token {
+    pub fn new(token_type: TokenType, literal: String) -> Self {
+        Self {
+            token_type,
+            literal,
+        }
+    }
 }
