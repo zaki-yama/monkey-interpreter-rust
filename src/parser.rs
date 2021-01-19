@@ -1,9 +1,7 @@
-use core::panic;
-
 use crate::{
     ast::{Expression::*, Program, Statement},
     lexer::Lexer,
-    token::Token,
+    token::{Token, TokenType},
 };
 
 #[test]
@@ -37,13 +35,6 @@ fn test_let_statements() {
         },
     ];
     assert_eq!(expected, program.statements);
-    // for (i, identifier) in expected_identifier.iter().enumerate() {
-    //     let statement = program.statements[i];
-    //     assert_eq!(statement)
-    //     if !test_let_statement(statement, identifier) {
-    //         return;
-    //     }
-    // }
 }
 
 pub struct Parser<'a> {
@@ -56,8 +47,8 @@ impl<'a> Parser<'a> {
     pub fn new(lexer: Lexer<'a>) -> Self {
         let mut parser = Self {
             lexer,
-            current_token: Token::Eof,
-            peek_token: Token::Eof,
+            current_token: Token::new(TokenType::Eof, String::from("")),
+            peek_token: Token::new(TokenType::Eof, String::from("")),
         };
 
         parser.next_token();
@@ -74,7 +65,7 @@ impl<'a> Parser<'a> {
     pub fn parse_program(&mut self) -> Program {
         let mut statements: Vec<Statement> = vec![];
 
-        while self.current_token != Token::Eof {
+        while self.current_token.token_type != TokenType::Eof {
             match self.parse_statement() {
                 Some(statement) => statements.push(statement),
                 None => {}
@@ -86,41 +77,45 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_statement(&mut self) -> Option<Statement> {
-        match self.current_token {
-            Token::Let => self.parse_let_statement(),
+        match self.current_token.token_type {
+            TokenType::Let => self.parse_let_statement(),
             _ => None,
         }
     }
 
     fn parse_let_statement(&mut self) -> Option<Statement> {
-        match self.peek_token {
-            Token::Ident(_) => self.next_token(),
-            _ => return None,
+        if !self.expect_peek(TokenType::Ident) {
+            return None;
         }
 
-        let name = self.parse_identifier()?;
-
+        let identifier = Identifier(self.current_token.literal.clone());
         let statement = Statement::Let {
-            name: Identifier(name), // value:
+            name: identifier,
+            // value,
         };
 
+        if !self.expect_peek(TokenType::Assign) {
+            return None;
+        }
+
         // TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
-        while self.current_token != Token::Semicolon {
+        while !self.current_token_is(TokenType::Semicolon) {
             self.next_token();
         }
 
         Some(statement)
     }
 
-    fn parse_identifier(&self) -> Option<String> {
-        match &self.current_token {
-            Token::Ident(name) => return Some(name.clone()),
-            _ => return None,
-        }
+    fn current_token_is(&self, t: TokenType) -> bool {
+        self.current_token.token_type == t
     }
 
-    fn expect_peek(&mut self, t: Token) -> bool {
-        if self.peek_token == t {
+    fn peek_token_is(&self, t: TokenType) -> bool {
+        self.peek_token.token_type == t
+    }
+
+    fn expect_peek(&mut self, t: TokenType) -> bool {
+        if self.peek_token_is(t) {
             self.next_token();
             return true;
         } else {
