@@ -76,6 +76,31 @@ mod tests {
         parser.parse_program();
         check_parse_errors(&parser);
     }
+
+    #[test]
+    fn test_return_statements() {
+        let input = "
+    return 5;
+    return 10;
+    return 838383;
+    ";
+
+        let lexer = Lexer::new(&input);
+        let mut parser = Parser::new(lexer);
+
+        let program = parser.parse_program();
+        check_parse_errors(&parser);
+
+        if program.statements.len() != 3 {
+            panic!(
+                "program.statements does not contain 3 statements. got={}",
+                program.statements.len()
+            );
+        }
+
+        let expected = vec![Statement::Return, Statement::Return, Statement::Return];
+        assert_eq!(expected, program.statements);
+    }
 }
 
 #[derive(Debug, Error)]
@@ -131,6 +156,7 @@ impl<'a> Parser<'a> {
     fn parse_statement(&mut self) -> Option<Statement> {
         match self.current_token.token_type {
             TokenType::Let => self.parse_let_statement(),
+            TokenType::Return => self.parse_return_statement(),
             _ => None,
         }
     }
@@ -149,6 +175,18 @@ impl<'a> Parser<'a> {
         if !self.expect_peek(TokenType::Assign) {
             return None;
         }
+
+        // TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
+        while !self.current_token_is(TokenType::Semicolon) {
+            self.next_token();
+        }
+
+        Some(statement)
+    }
+
+    fn parse_return_statement(&mut self) -> Option<Statement> {
+        let statement = Statement::Return;
+        self.next_token();
 
         // TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
         while !self.current_token_is(TokenType::Semicolon) {
