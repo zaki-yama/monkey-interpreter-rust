@@ -29,6 +29,39 @@ mod tests {
     }
 
     #[test]
+    fn test_identifier_expression() {
+        let input = "foobar";
+
+        let lexer = Lexer::new(&input);
+        let mut parser = Parser::new(lexer);
+
+        let program = parser.parse_program();
+        check_parse_errors(&parser);
+
+        if program.statements.len() != 1 {
+            panic!(
+                "program has not enough statements. got {}",
+                program.statements.len()
+            );
+        }
+
+        let statement = &program.statements[0];
+
+        let expression = match statement {
+            Statement::Expression(expression) => expression,
+            _ => {
+                panic!("program.statements[0] is not expression. got {}", statement);
+            }
+        };
+
+        let value = match expression {
+            Identifier(value) => value,
+            _ => panic!("expression is not Identifier. got {}", expression),
+        };
+        assert_eq!("foobar", value);
+    }
+
+    #[test]
     #[ignore = "not yet implemented"]
     fn test_string() {
         let program = Program {
