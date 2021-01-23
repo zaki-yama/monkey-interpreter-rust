@@ -8,9 +8,11 @@ use crate::{
 
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
     use super::Parser;
     use crate::{
-        ast::{Expression::*, Statement},
+        ast::{Expression::*, Program, Statement},
         lexer::Lexer,
     };
 
@@ -24,6 +26,18 @@ mod tests {
             println!("parser error: {}", error);
         }
         panic!("test failed");
+    }
+
+    #[test]
+    #[ignore = "not yet implemented"]
+    fn test_string() {
+        let program = Program {
+            statements: vec![Statement::Let {
+                name: Identifier(String::from("myVar")),
+                // value: Identifier(String::from("anotherVar"))
+            }],
+        };
+        assert_eq!("let myVar = anotherValue;", program.to_string());
     }
 
     #[test]
