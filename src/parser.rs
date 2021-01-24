@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 use crate::{
-    ast::{Expression::*, Program, Statement},
+    ast::{Expression, Precedence, Program, Statement},
     lexer::Lexer,
     token::{Token, TokenType},
 };
@@ -204,7 +204,7 @@ impl<'a> Parser<'a> {
         match self.current_token.token_type {
             TokenType::Let => self.parse_let_statement(),
             TokenType::Return => self.parse_return_statement(),
-            _ => None,
+            _ => self.parse_expression_statement(),
         }
     }
 
@@ -213,7 +213,7 @@ impl<'a> Parser<'a> {
             return None;
         }
 
-        let identifier = Identifier(self.current_token.literal.clone());
+        let identifier = Expression::Identifier(self.current_token.literal.clone());
         let statement = Statement::Let {
             name: identifier,
             // value,
@@ -241,6 +241,31 @@ impl<'a> Parser<'a> {
         }
 
         Some(statement)
+    }
+
+    fn parse_expression_statement(&mut self) -> Option<Statement> {
+        let expression = self.parse_expression(Precedence::Lowest).unwrap();
+
+        let statement = Statement::Expression(expression);
+
+        if self.peek_token_is(&TokenType::Semicolon) {
+            self.next_token();
+        }
+
+        Some(statement)
+    }
+
+    fn parse_expression(&self, precedence: Precedence) -> Option<Expression> {
+        // トークンタイプにひもづけられた構文解析関数を呼び出す
+        let prefix = match self.current_token.token_type {
+            TokenType::Ident => Expression::Identifier(self.parse_identifier()),
+            _ => return None,
+        };
+        Some(prefix)
+    }
+
+    fn parse_identifier(&self) -> String {
+        self.current_token.literal.clone()
     }
 
     fn current_token_is(&self, t: TokenType) -> bool {
