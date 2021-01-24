@@ -62,6 +62,39 @@ mod tests {
     }
 
     #[test]
+    fn test_integer_literal_expression() {
+        let input = "5;";
+
+        let lexer = Lexer::new(&input);
+        let mut parser = Parser::new(lexer);
+
+        let program = parser.parse_program();
+        check_parse_errors(&parser);
+
+        if program.statements.len() != 1 {
+            panic!(
+                "program has not enough statements. got {}",
+                program.statements.len()
+            );
+        }
+
+        let statement = &program.statements[0];
+
+        let expression = match statement {
+            Statement::Expression(expression) => expression,
+            _ => {
+                panic!("program.statements[0] is not expression. got {}", statement);
+            }
+        };
+
+        let value = match expression {
+            IntegerLiteral(value) => *value,
+            _ => panic!("expression is not Identifier. got {}", expression),
+        };
+        assert_eq!(5, value);
+    }
+
+    #[test]
     #[ignore = "not yet implemented"]
     fn test_string() {
         let program = Program {
@@ -157,6 +190,8 @@ pub enum ParseError {
         expected: TokenType,
         actual: TokenType,
     },
+    #[error("could not parse {0} as integer")]
+    FailedToParseInteger(String),
 }
 
 pub struct Parser<'a> {
@@ -255,10 +290,11 @@ impl<'a> Parser<'a> {
         Some(statement)
     }
 
-    fn parse_expression(&self, precedence: Precedence) -> Option<Expression> {
+    fn parse_expression(&mut self, precedence: Precedence) -> Option<Expression> {
         // トークンタイプにひもづけられた構文解析関数を呼び出す
         let prefix = match self.current_token.token_type {
             TokenType::Ident => Expression::Identifier(self.parse_identifier()),
+            TokenType::Int => Expression::IntegerLiteral(self.parse_integer_literal()),
             _ => return None,
         };
         Some(prefix)
@@ -266,6 +302,19 @@ impl<'a> Parser<'a> {
 
     fn parse_identifier(&self) -> String {
         self.current_token.literal.clone()
+    }
+
+    fn parse_integer_literal(&mut self) -> i64 {
+        match self.current_token.literal.parse::<i64>() {
+            Ok(value) => value,
+            Err(_) => {
+                self.errors.push(ParseError::FailedToParseInteger(
+                    self.current_token.literal.clone(),
+                ));
+                // FIXME: 適当な値を返すのではなく戻り値自体を Result にした方がよさそう
+                0
+            }
+        }
     }
 
     fn current_token_is(&self, t: TokenType) -> bool {

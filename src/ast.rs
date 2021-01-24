@@ -7,12 +7,14 @@ pub enum Node {
 #[derive(PartialEq, Debug)]
 pub enum Expression {
     Identifier(String),
+    IntegerLiteral(i64),
 }
 
 impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Expression::Identifier(value) => write!(f, "{}", value),
+            Expression::IntegerLiteral(value) => write!(f, "{}", value),
         }
     }
 }
